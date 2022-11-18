@@ -1,3 +1,13 @@
+mod lexer;
+
+use crate::lexer::*;
+
 fn main() {
-    println!("Hello, world!");
+    let source: String = String::from("'agasg'");
+    let tokens = lex(source);
+    
+    for token in tokens {
+        println!("{:?}", token);
+    }
+
 }

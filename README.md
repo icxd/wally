@@ -67,40 +67,40 @@ wally is a statically-typed programming language inspired by Java, C, C++ and mo
   - [ ] Operators
     - If a type is not specified, it is assumed to be `void`, meaning that it does not have a return type, meaning that it cannot return anything.
     - You can also use a `?` as a type, meaing that it can return anything. This is not recommended, as it can cause errors and make the program harder to read.
-    - [ ] `+` - Add
-    - [ ] `-` - Subtract
-    - [ ] `*` - Multiply
-    - [ ] `/` - Divide
-    - [ ] `%` - Modulo
-    - [ ] `++` - Increment
-    - [ ] `--` - Decrement
-    - [ ] `+=` - Add by value
-    - [ ] `-=` - Subtract by value
-    - [ ] `*=` - Multiply by value
-    - [ ] `/=` - Divide by value
-    - [ ] `%=` - Mod by value
-    - [ ] `==` - Equals
-    - [ ] `!=` - Not equals
-    - [ ] `>` - Greater than
-    - [ ] `<` - Less than
-    - [ ] `>=` Greater than or equals
-    - [ ] `<=` - Less than or equals
-    - [ ] `&&` - Logical AND
-    - [ ] `||` - Logical OR
-    - [ ] `!` - Logical NOT
-    - [ ] `&` - Bitwise AND
-    - [ ] `|` - Bitwise OR
-    - [ ] `^` - Bitwise XOR
-    - [ ] `~` - Bitwise NOT
-    - [ ] `<<` - Bitwise left shift
-    - [ ] `>>` - Bitwise right shift
+    - [x] `+` - Add
+    - [x] `-` - Subtract
+    - [x] `*` - Multiply
+    - [x] `/` - Divide
+    - [x] `%` - Modulo
+    - [x] `++` - Increment
+    - [x] `--` - Decrement
+    - [x] `+=` - Add by value
+    - [x] `-=` - Subtract by value
+    - [x] `*=` - Multiply by value
+    - [x] `/=` - Divide by value
+    - [x] `%=` - Mod by value
+    - [x] `==` - Equals
+    - [x] `!=` - Not equals
+    - [x] `>` - Greater than
+    - [x] `<` - Less than
+    - [x] `>=` Greater than or equals
+    - [x] `<=` - Less than or equals
+    - [x] `&&` - Logical AND
+    - [x] `||` - Logical OR
+    - [x] `!` - Logical NOT
+    - [x] `&` - Bitwise AND
+    - [x] `|` - Bitwise OR
+    - [x] `^` - Bitwise XOR
+    - [x] `~` - Bitwise NOT
+    - [x] `<<` - Bitwise left shift
+    - [x] `>>` - Bitwise right shift
     - [ ] `>>>` - Bitwise unsigned right shift
-    - [ ] `&=` - Bitwise AND by value
-    - [ ] `|=` - Bitwise OR by value
-    - [ ] `^=` - Bitwise XOR by value
-    - [ ] `~=` - Bitwise NOT by value
-    - [ ] `<<=` - Bitwise left shift by value
-    - [ ] `>>=` - Bitwise right shift by value
+    - [x] `&=` - Bitwise AND by value
+    - [x] `|=` - Bitwise OR by value
+    - [x] `^=` - Bitwise XOR by value
+    - [x] `~=` - Bitwise NOT by value
+    - [x] `<<=` - Bitwise left shift by value
+    - [x] `>>=` - Bitwise right shift by value
     - [ ] `>>>=` - Bitwise unsigned right shift by value
   - [ ] Pointers
     - Pointers are a way to store the address of a variable. You can create a pointer to any type by writing `int*`, `string*`, `array<int>*`, etc.
