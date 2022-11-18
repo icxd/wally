@@ -1,4 +1,3 @@
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     // Data types
@@ -22,7 +21,6 @@ pub enum TokenType {
     CharLiteral,
     NumberLiteral,
     FloatLiteral,
-    ByteLiteral,
     BooleanLiteral,
 
     // Operators
@@ -85,7 +83,6 @@ pub enum TokenType {
     Map,
     Return,
 }
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct Token {
     pub token_type: TokenType,
@@ -93,7 +90,6 @@ pub struct Token {
     pub line: usize,
     pub column: usize,
 }
-
 pub fn lex(source: String) -> Vec<Token> {
     let mut tokens: Vec<Token> = Vec::new();
     let mut i: usize = 0;
@@ -101,7 +97,7 @@ pub fn lex(source: String) -> Vec<Token> {
     let mut column: usize = 1;
 
     while i < source.len() {
-        let c = source.chars().nth(i).unwrap();
+        let c: char = source.chars().nth(i).unwrap();
 
         match c {
             ' ' => {
@@ -596,6 +592,7 @@ pub fn lex(source: String) -> Vec<Token> {
                     "array" => TokenType::Array,
                     "map" => TokenType::Map,
                     "return" => TokenType::Return,
+                    "true" | "false" => TokenType::BooleanLiteral,
                     _ => TokenType::IdentifierLiteral,
                 };
 
@@ -610,17 +607,22 @@ pub fn lex(source: String) -> Vec<Token> {
                 let mut value = String::new();
                 value.push(source.chars().nth(i).unwrap());
                 i += 1;
-                while source.chars().nth(i).unwrap().is_numeric() {
+                while source.chars().nth(i).unwrap().is_numeric() || source.chars().nth(i).unwrap() == '.' {
                     value.push(source.chars().nth(i).unwrap());
                     i += 1;
                 }
 
+                let token_type = match value.contains('.') {
+                    true => TokenType::FloatLiteral,
+                    false => TokenType::NumberLiteral,
+                };
+
                 tokens.push(Token {
-                    token_type: TokenType::NumberLiteral,
+                    token_type,
                     value,
                     line,
                     column,
-                });
+                });                
             }
             '"' => {
                 let mut value = String::new();
