@@ -1,0 +1,25 @@
+{
+  "name": "wally",
+  "displayName": "wally",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "wally",
+      "aliases": ["wally", "wally"],
+      "extensions": [".wly"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "wally",
+      "scopeName": "main.wly",
+      "path": "./syntaxes/wally.tmLanguage.json"
+    }]
+  }
+}

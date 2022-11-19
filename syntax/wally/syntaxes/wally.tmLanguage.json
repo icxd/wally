@@ -1,0 +1,90 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "wally",
+	"patterns": [
+		{ "include": "#keywords" },
+		{ "include": "#datatypes" },
+		{ "include": "#functionName" },
+		{ "include": "#enumValue" },
+		{ "include": "#declaration" },
+		{ "include": "#strings" },
+		{ "include": "#number" },
+		{ "include": "#comments" },
+		{ "include": "#multilineComments" },
+		{ "include": "#chars" },
+		{ "include": "#escapeCharacters" },
+		{ "include": "#className" }
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.wally",
+				"match": "\\b(if|else|while|for|return|continue|break|import|new|throw|override|const|this)\\b"
+			}]
+		},
+		"datatypes": {
+			"patterns": [{
+				"name": "keyword.control.wally",
+				"match": "\\b(string|int|int64|uint|uint64|void|float|double|short|long|char|boolean|func|class|lambda|enum|namespace|array|map)\\b"
+			}]
+		},
+		"functionName": {
+			"patterns": [{
+				"name": "entity.name.function.wally",
+				"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\("
+			}]
+		},
+		"enumValue": {
+			"patterns": [{
+				"name": "constant.other.enum.wally",
+				"match": "\\b([A-Z_]*)\\s*\\="
+			}]
+		},
+		"declaration": {
+			"patterns": [{
+				"name": "storage.type.wally",
+				"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\:"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.wally",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.wally",
+					"match": "\\\\."
+				}
+			]
+		},
+		"number": {
+			"name": "constant.numeric.wally",
+			"match": "\\b([0-9]+)\\b"
+		},
+		"comments": {
+			"name": "comment.line.double-slash.wally",
+			"begin": "//",
+			"end": "$"
+		},
+		"multilineComments": {
+			"name": "comment.block.wally",
+			"begin": "/\\*",
+			"end": "\\*/"
+		},
+		"chars": {
+			"name": "constant.character.wally",
+			"match": "'.'"
+		},
+		"escapeCharacters": {
+			"name": "constant.character.escape.wally",
+			"match": "\\\\."
+		},
+		"className": {
+			"patterns": [{
+				"name": "entity.name.class.wally",
+				"match": "\\b(class)\\s+([a-zA-Z_][a-zA-Z0-9_]*)"
+			}]
+		}
+	},
+	"scopeName": "main.wly"
+}
