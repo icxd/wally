@@ -83,11 +83,11 @@ pub struct Identifier {
 pub enum Type {
     Array(Box<Type>),
     Map(Box<Type>, Box<Type>),
+    Pointer(Box<Type>),
     Int,
     String,
     Character,
     Boolean,
-    Pointer(Box<Type>),
 }
 
 pub fn parse(tokens: &Vec<Token>) -> Program {
