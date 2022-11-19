@@ -21,6 +21,7 @@ pub struct VariableDeclaration {
 pub enum Expression {
     ArrayLiteral(ArrayLiteral),
     NumberLiteral(NumberLiteral),
+    StringLiteral(StringLiteral),
 }
 
 #[derive(Debug)]
@@ -34,9 +35,15 @@ pub struct NumberLiteral {
 }
 
 #[derive(Debug)]
+pub struct StringLiteral {
+    pub value: String,
+}
+
+#[derive(Debug)]
 pub enum Type {
     Array(Box<Type>),
     Int,
+    String,
 }
 
 pub fn parse(tokens: Vec<Token>) -> Program {
@@ -75,7 +82,7 @@ fn parse_type(tokens: &Vec<Token>, index: &mut usize) -> Type {
 
     match token.token_type {
         TokenType::Array => {
-            expect_tok(&tokens, index, TokenType::IdentifierLiteral);
+            expect_tok(&tokens, index, TokenType::Array);
             expect_tok(&tokens, index, TokenType::LessThan);
             let type_ = parse_type(&tokens, index);
             expect_tok(&tokens, index, TokenType::GreaterThan);
@@ -84,6 +91,10 @@ fn parse_type(tokens: &Vec<Token>, index: &mut usize) -> Type {
         TokenType::Int32 => {
             expect_tok(&tokens, index, TokenType::Int32);
             Type::Int
+        }
+        TokenType::String => {
+            expect_tok(&tokens, index, TokenType::String);
+            Type::String
         }
         _ => panic!("Unhandled token: {:?}", token),
     }
@@ -108,6 +119,12 @@ fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
             expect_tok(&tokens, index, TokenType::NumberLiteral);
             Expression::NumberLiteral(NumberLiteral {
                 value: token.value.parse().unwrap(),
+            })
+        }
+        TokenType::StringLiteral => {
+            expect_tok(&tokens, index, TokenType::StringLiteral);
+            Expression::StringLiteral(StringLiteral {
+                value: token.value.clone(),
             })
         }
         _ => panic!("Unhandled token: {:?}", token),

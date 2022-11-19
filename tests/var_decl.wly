@@ -1,1 +1,1 @@
-x: int = 123;
+x: string = "Hello World";
