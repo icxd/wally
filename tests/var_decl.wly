@@ -1,3 +1,8 @@
-main: func<int> = (args: array<string>) => {
-    
+const [ println, print ] = import("io");
+const [ read, write ] = import("fs");
+
+main: func<int> = (args: array<string> = []) => {
+
 }
+
+main();

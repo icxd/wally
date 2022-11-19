@@ -10,6 +10,7 @@ pub enum Statement {
     VariableDeclaration(VariableDeclaration),
     FunctionDeclaration(FunctionDeclaration),
     FunctionCall(FunctionCall),
+    Import(Import),
 }
 
 #[derive(Debug)]
@@ -17,6 +18,7 @@ pub struct VariableDeclaration {
     pub name: String,
     pub type_: Type,
     pub value: Expression,
+    pub immutable: bool,
 }
 
 #[derive(Debug)]
@@ -31,6 +33,12 @@ pub struct FunctionDeclaration {
 pub struct FunctionCall {
     pub name: String,
     pub arguments: Vec<Expression>,
+}
+
+#[derive(Debug)]
+pub struct Import {
+    pub path: String,
+    pub methods: Expression,
 }
 
 #[derive(Debug)]
@@ -143,8 +151,39 @@ fn parse_statements(tokens: &Vec<Token>) -> Vec<Statement> {
                         name,
                         type_,
                         value,
+                        immutable: false,
                     }));
                 }
+            }
+            TokenType::Const => {
+                expect_tok(&tokens, &mut index, TokenType::Const);
+                if &tokens[index].token_type.clone() == &TokenType::OpenBracket {
+                    let methods: Expression = parse_expression(tokens, &mut index);
+                    expect_tok(&tokens, &mut index, TokenType::Assignment);
+                    expect_tok(&tokens, &mut index, TokenType::Import);
+                    expect_tok(&tokens, &mut index, TokenType::OpenParenthesis);
+                    let path: String = tokens[index].value.clone().as_str().to_string();
+                    expect_tok(&tokens, &mut index, TokenType::StringLiteral);
+                    expect_tok(&tokens, &mut index, TokenType::CloseParenthesis);
+                    expect_tok(&tokens, &mut index, TokenType::Semicolon);
+
+                    statements.push(Statement::Import(Import { path, methods }));
+
+                    continue;
+                }
+                let name = token.value.clone();
+                expect_tok(&tokens, &mut index, TokenType::IdentifierLiteral);
+                expect_tok(&tokens, &mut index, TokenType::Colon);
+                let type_ = parse_type(&tokens, &mut index);
+                expect_tok(&tokens, &mut index, TokenType::Assignment);
+                let value = parse_expression(&tokens, &mut index);
+                expect_tok(&tokens, &mut index, TokenType::Semicolon);
+                statements.push(Statement::VariableDeclaration(VariableDeclaration {
+                    name,
+                    type_,
+                    value,
+                    immutable: true,
+                }));
             }
             TokenType::EndOfFile => break,
             _ => panic!("Unhandled token: {:?}", token),
