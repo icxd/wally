@@ -1,6 +1,9 @@
 # wally
 wally is a statically-typed programming language inspired by Java, C, C++ and more. 
 
+# Syntax Highlighting
+To get any sort of syntax highlighting for wally inside Visual Studio Code, you have to clone the repository and place the 'wally' folder (inside the 'syntax' folder) into your 'C:/Users/whatever/.vscode/extensions/'
+
 ## TODO
 - [x] Lexer
 - [ ] Parser
