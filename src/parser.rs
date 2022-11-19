@@ -20,11 +20,17 @@ pub struct VariableDeclaration {
 #[derive(Debug)]
 pub enum Expression {
     ArrayLiteral(ArrayLiteral),
+    NumberLiteral(NumberLiteral),
 }
 
 #[derive(Debug)]
 pub struct ArrayLiteral {
     pub elements: Vec<Expression>,
+}
+
+#[derive(Debug)]
+pub struct NumberLiteral {
+    pub value: f64,
 }
 
 #[derive(Debug)]
@@ -38,17 +44,74 @@ pub fn parse(tokens: Vec<Token>) -> Program {
     let mut index: usize = 0;
 
     while index < tokens.len() {
-        let token = &tokens[index];
+        let token: &Token = &tokens[index];
 
         match token.token_type {
             TokenType::IdentifierLiteral => {
+                let name = token.value.clone();
+                expect_tok(&tokens, &mut index, TokenType::IdentifierLiteral);
+                expect_tok(&tokens, &mut index, TokenType::Colon);
+                let type_ = parse_type(&tokens, &mut index);
+                expect_tok(&tokens, &mut index, TokenType::Assignment);
+                let value = parse_expression(&tokens, &mut index);
+                expect_tok(&tokens, &mut index, TokenType::Semicolon);
 
+                statements.push(Statement::VariableDeclaration(VariableDeclaration {
+                    name,
+                    type_,
+                    value,
+                }));
             }
             _ => panic!("Unhandled token: {:?}", token),
         }
     }
 
     Program { statements }
+}
+
+// Parse methods
+fn parse_type(tokens: &Vec<Token>, index: &mut usize) -> Type {
+    let token: &Token = &tokens[*index];
+
+    match token.token_type {
+        TokenType::Array => {
+            expect_tok(&tokens, index, TokenType::IdentifierLiteral);
+            expect_tok(&tokens, index, TokenType::LessThan);
+            let type_ = parse_type(&tokens, index);
+            expect_tok(&tokens, index, TokenType::GreaterThan);
+            Type::Array(Box::new(type_))
+        }
+        TokenType::Int32 => {
+            expect_tok(&tokens, index, TokenType::Int32);
+            Type::Int
+        }
+        _ => panic!("Unhandled token: {:?}", token),
+    }
+}
+fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
+    let token: &Token = &tokens[*index];
+
+    match token.token_type {
+        TokenType::OpenBracket => {
+            expect_tok(&tokens, index, TokenType::OpenBracket);
+            let mut elements: Vec<Expression> = Vec::new();
+            while tokens[*index].token_type != TokenType::CloseBracket {
+                elements.push(parse_expression(&tokens, index));
+                if tokens[*index].token_type == TokenType::Comma {
+                    expect_tok(&tokens, index, TokenType::Comma);
+                }
+            }
+            expect_tok(&tokens, index, TokenType::CloseBracket);
+            Expression::ArrayLiteral(ArrayLiteral { elements })
+        }
+        TokenType::NumberLiteral => {
+            expect_tok(&tokens, index, TokenType::NumberLiteral);
+            Expression::NumberLiteral(NumberLiteral {
+                value: token.value.parse().unwrap(),
+            })
+        }
+        _ => panic!("Unhandled token: {:?}", token),
+    }
 }
 
 // Util methods
@@ -62,6 +125,6 @@ fn match_tok(tokens: &Vec<Token>, index: &mut usize, token_type: &TokenType) -> 
 }
 fn expect_tok(tokens: &Vec<Token>, index: &mut usize, token_type: TokenType) {
     if !match_tok(tokens, index, &token_type) {
-        panic!("Expected token: {:?}", token_type.clone());
+        panic!("Expected token: {:?}, got {:?}", token_type.clone(), tokens[*index].token_type);
     }
 }

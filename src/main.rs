@@ -5,9 +5,9 @@ use crate::lexer::*;
 use crate::parser::*;
 
 fn main() {
-    let source: String = String::from("x: array<int> = [1, 2, 3];");
+    let source: String = String::from("x: int = 123;");
     let tokens: Vec<Token> = lex(source);
     let program: Program = parse(tokens);
     
-    println!("{:?}", program);
+    println!("{:#?}", program);
 }
