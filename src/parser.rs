@@ -22,6 +22,8 @@ pub enum Expression {
     ArrayLiteral(ArrayLiteral),
     NumberLiteral(NumberLiteral),
     StringLiteral(StringLiteral),
+    CharacterLiteral(CharacterLiteral),
+    BooleanLiteral(BooleanLiteral),
 }
 
 #[derive(Debug)]
@@ -40,10 +42,22 @@ pub struct StringLiteral {
 }
 
 #[derive(Debug)]
+pub struct CharacterLiteral {
+    pub value: char,
+}
+
+#[derive(Debug)]
+pub struct BooleanLiteral {
+    pub value: bool,
+}
+
+#[derive(Debug)]
 pub enum Type {
     Array(Box<Type>),
     Int,
     String,
+    Character,
+    Boolean,
 }
 
 pub fn parse(tokens: Vec<Token>) -> Program {
@@ -96,6 +110,14 @@ fn parse_type(tokens: &Vec<Token>, index: &mut usize) -> Type {
             expect_tok(&tokens, index, TokenType::String);
             Type::String
         }
+        TokenType::Char => {
+            expect_tok(&tokens, index, TokenType::Char);
+            Type::Character
+        }
+        TokenType::Boolean => {
+            expect_tok(&tokens, index, TokenType::Boolean);
+            Type::Boolean
+        }
         _ => panic!("Unhandled token: {:?}", token),
     }
 }
@@ -125,6 +147,18 @@ fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
             expect_tok(&tokens, index, TokenType::StringLiteral);
             Expression::StringLiteral(StringLiteral {
                 value: token.value.clone(),
+            })
+        }
+        TokenType::CharLiteral => {
+            expect_tok(&tokens, index, TokenType::CharLiteral);
+            Expression::CharacterLiteral(CharacterLiteral {
+                value: token.value.chars().next().unwrap(),
+            })
+        }
+        TokenType::BooleanLiteral => {
+            expect_tok(&tokens, index, TokenType::BooleanLiteral);
+            Expression::BooleanLiteral(BooleanLiteral {
+                value: token.value.parse().unwrap(),
             })
         }
         _ => panic!("Unhandled token: {:?}", token),

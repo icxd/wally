@@ -1,1 +1,4 @@
-x: string = "Hello World";
+x: int = 123;
+y: string = "abc";
+z: boolean = true;
+w: char = 'x';
