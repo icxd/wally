@@ -34,26 +34,24 @@ pub struct FunctionCall {
 }
 
 #[derive(Debug)]
-pub struct BinaryExpression {
-    pub left: Box<Expression>,
-    pub operator: TokenType,
-    pub right: Box<Expression>,
-}
-
-#[derive(Debug)]
 pub enum Expression {
     ArrayLiteral(ArrayLiteral),
+    MapLiteral(MapLiteral),
     NumberLiteral(NumberLiteral),
     StringLiteral(StringLiteral),
     CharacterLiteral(CharacterLiteral),
     BooleanLiteral(BooleanLiteral),
     Identifier(Identifier),
-    BinaryExpression(BinaryExpression),
 }
 
 #[derive(Debug)]
 pub struct ArrayLiteral {
     pub elements: Vec<Expression>,
+}
+
+#[derive(Debug)]
+pub struct MapLiteral {
+    pub elements: Vec<(Expression, Expression)>,
 }
 
 #[derive(Debug)]
@@ -84,6 +82,7 @@ pub struct Identifier {
 #[derive(Debug)]
 pub enum Type {
     Array(Box<Type>),
+    Map(Box<Type>, Box<Type>),
     Int,
     String,
     Character,
@@ -159,6 +158,15 @@ fn parse_type(tokens: &Vec<Token>, index: &mut usize) -> Type {
             expect_tok(&tokens, index, TokenType::GreaterThan);
             Type::Array(Box::new(type_))
         }
+        TokenType::Map => {
+            expect_tok(&tokens, index, TokenType::Map);
+            expect_tok(&tokens, index, TokenType::LessThan);
+            let key_type = parse_type(&tokens, index);
+            expect_tok(&tokens, index, TokenType::Comma);
+            let value_type = parse_type(&tokens, index);
+            expect_tok(&tokens, index, TokenType::GreaterThan);
+            Type::Map(Box::new(key_type), Box::new(value_type))
+        }
         TokenType::Int32 => {
             expect_tok(&tokens, index, TokenType::Int32);
             Type::Int
@@ -193,6 +201,21 @@ fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
             }
             expect_tok(&tokens, index, TokenType::CloseBracket);
             Expression::ArrayLiteral(ArrayLiteral { elements })
+        }
+        TokenType::OpenBrace => {
+            expect_tok(&tokens, index, TokenType::OpenBrace);
+            let mut elements: Vec<(Expression, Expression)> = Vec::new();
+            while tokens[*index].token_type != TokenType::CloseBrace {
+                let key = parse_expression(&tokens, index);
+                expect_tok(&tokens, index, TokenType::Colon);
+                let value = parse_expression(&tokens, index);
+                elements.push((key, value));
+                if tokens[*index].token_type == TokenType::Comma {
+                    expect_tok(&tokens, index, TokenType::Comma);
+                }
+            }
+            expect_tok(&tokens, index, TokenType::CloseBrace);
+            Expression::MapLiteral(MapLiteral { elements })
         }
         TokenType::NumberLiteral => {
             expect_tok(&tokens, index, TokenType::NumberLiteral);

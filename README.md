@@ -15,6 +15,9 @@ After that, you can run `cargo run filename.wly`, replacing the filename with th
   - [x] Function declarations
   - [x] Function calls
   - [ ] IMPORTANT: Valid maths parsing
+  - [x] List types
+    - [x] Arrays
+    - [x] Maps
 - [ ] Validate AST
 - [ ] Generate Assembly Code
 - [ ] Validate Assembly
@@ -103,14 +106,14 @@ After that, you can run `cargo run filename.wly`, replacing the filename with th
     - [x] `~` - Bitwise NOT
     - [x] `<<` - Bitwise left shift
     - [x] `>>` - Bitwise right shift
-    - [ ] `>>>` - Bitwise unsigned right shift
+    - [x] `>>>` - Bitwise unsigned right shift
     - [x] `&=` - Bitwise AND by value
     - [x] `|=` - Bitwise OR by value
     - [x] `^=` - Bitwise XOR by value
     - [x] `~=` - Bitwise NOT by value
     - [x] `<<=` - Bitwise left shift by value
     - [x] `>>=` - Bitwise right shift by value
-    - [ ] `>>>=` - Bitwise unsigned right shift by value
+    - [x] `>>>=` - Bitwise unsigned right shift by value
   - [ ] Pointers
     - Pointers are a way to store the address of a variable. You can create a pointer to any type by writing `int*`, `string*`, `array<int>*`, etc.
     - You can dereference a pointer by writing `*pointerName`.
