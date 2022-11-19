@@ -8,6 +8,16 @@ To get any sort of syntax highlighting for wally inside Visual Studio Code, you 
 To execute your code, you have to have rust and cargo installed on your computer.
 After that, you can run `cargo run filename.wly`, replacing the filename with the name of your program.
 
+## Hello, World!
+> Not compilable at the moment.
+```
+const { println } = import("io");
+
+main: func<int> = (args?: array<string>) => {
+    println("Hello, world!");
+    return 0;
+}
+```
 ## TODO
 - [x] Lexer
 - [ ] Parser
@@ -127,13 +137,3 @@ After that, you can run `cargo run filename.wly`, replacing the filename with th
     - You can create an object by writing 'object'.
     - [ ] `object#toString()` Convert the object to a string
     - [ ] `object#equals(object)` Check if the object is equal to another object
-
-## Hello, World!
-```
-const { println } = import("io");
-
-main: func<int> = (args?: array<string>) => {
-    println("Hello, world!");
-    return 0;
-}
-```
