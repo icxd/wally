@@ -275,7 +275,13 @@ fn parse_parameters(tokens: &Vec<Token>, index: &mut usize) -> Vec<(String, Type
 }
 fn parse_block(tokens: &Vec<Token>, index: &mut usize) -> Vec<Statement> {
     let mut toks: Vec<Token> = Vec::new();
-    while tokens[*index].token_type != TokenType::CloseBrace {
+    // TODO: fix this fuckign issue with the curly braces fucking up because of the fucking maps also using the fucking curely braces
+    // AND THAT FOR SOME REASON DOESNT MAKE IT WORK AND THE FIX I TRIED TO IMPLEMENT DOESNT FUCKING WORK EITHER OMFG IM GONNA KILL MYSELF
+    // WHY DID I DECIDE TO MAKE ANOTHER FUCKING PROGRAMMING LANGUAGE WHEN I KNOW THAT IT IS SUCH A FUCKING PAIN IN THE ASS OMFG OFMG OMFG OMFG 
+    // SGJEGSIOJEGSEGSESOJÖESOJÖJSÖJÖGJÖSÖSJIGOAJÖIOGJIPAJ4G8AJ4GJAGÄGÄÄAGÖGGÖÄGÖÄÖÄFGDÖÄFGSDÖÄFGSDFGSDÖÄÖÄFGSDÖÄÖÄFGC
+    while tokens[*index].token_type != TokenType::CloseBrace &&
+            tokens[*index + 1].token_type != TokenType::Semicolon {
+        // println!("{:?} {:?}", tokens[*index].token_type, tokens[*index + 1].token_type);
         toks.push(tokens[*index].clone());
         *index += 1;
     }
@@ -354,9 +360,6 @@ fn parse_arguments(tokens: &Vec<Token>, index: &mut usize) -> Vec<Expression> {
 
 // Util methods
 fn match_tok(tokens: &Vec<Token>, index: &mut usize, token_type: &TokenType) -> bool {
-    if *index >= tokens.len() {
-        return false;
-    }
     if &tokens[*index].token_type == token_type {
         *index += 1;
         return true;
@@ -365,9 +368,6 @@ fn match_tok(tokens: &Vec<Token>, index: &mut usize, token_type: &TokenType) -> 
     false
 }
 fn expect_tok(tokens: &Vec<Token>, index: &mut usize, token_type: TokenType) {
-    if *index >= tokens.len() {
-        return;
-    }
     if !match_tok(tokens, index, &token_type) {
         panic!("Expected token: {:?}, got {:?}", token_type.clone(), tokens[*index].token_type);
     }
