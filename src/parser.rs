@@ -22,7 +22,7 @@ pub struct VariableDeclaration {
 #[derive(Debug)]
 pub struct FunctionDeclaration {
     pub name: String,
-    pub parameters: Vec<(String, Type)>,
+    pub parameters: Vec<(String, Type, bool, Expression)>,
     pub return_type: Type,
     pub body: Vec<Statement>,
 }
@@ -42,6 +42,8 @@ pub enum Expression {
     CharacterLiteral(CharacterLiteral),
     BooleanLiteral(BooleanLiteral),
     Identifier(Identifier),
+
+    None,
 }
 
 #[derive(Debug)]
@@ -119,7 +121,7 @@ fn parse_statements(tokens: &Vec<Token>) -> Vec<Statement> {
                     let return_type: Type = parse_type(&tokens, &mut index);
                     expect_tok(&tokens, &mut index, TokenType::GreaterThan);
                     expect_tok(&tokens, &mut index, TokenType::Assignment);
-                    let parameters: Vec<(String, Type)> = parse_parameters(&tokens, &mut index);
+                    let parameters: Vec<(String, Type, bool, Expression)> = parse_parameters(&tokens, &mut index);
                     expect_tok(&tokens, &mut index, TokenType::FatArrow);
                     expect_tok(&tokens, &mut index, TokenType::OpenBrace);
                     let body: Vec<Statement> = parse_block(&tokens, &mut index);
@@ -267,15 +269,24 @@ fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
         _ => panic!("Unhandled token: {:?}", token),
     }
 }
-fn parse_parameters(tokens: &Vec<Token>, index: &mut usize) -> Vec<(String, Type)> {
+fn parse_parameters(tokens: &Vec<Token>, index: &mut usize) -> Vec<(String, Type, bool, Expression)> {
     expect_tok(&tokens, index, TokenType::OpenParenthesis);
-    let mut parameters: Vec<(String, Type)> = Vec::new();
+    let mut parameters: Vec<(String, Type, bool, Expression)> = Vec::new();
     while tokens[*index].token_type != TokenType::CloseParenthesis {
         let name = tokens[*index].value.clone();
+        let mut optional: bool = false;
+        let mut default_value: Expression = Expression::None;
         expect_tok(&tokens, index, TokenType::IdentifierLiteral);
+        if match_tok(&tokens, index, &TokenType::QuestionMark) {
+            optional = true;
+        }
         expect_tok(&tokens, index, TokenType::Colon);
         let type_ = parse_type(&tokens, index);
-        parameters.push((name, type_));
+        if match_tok(&tokens, index, &TokenType::Assignment) {
+            default_value = parse_expression(&tokens, index);
+            optional = true;
+        }
+        parameters.push((name, type_, optional, default_value));
         if tokens[*index].token_type == TokenType::Comma {
             expect_tok(&tokens, index, TokenType::Comma);
         }
