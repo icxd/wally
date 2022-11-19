@@ -1,4 +1,6 @@
-x: int = 123;
-y: string = "abc";
-z: boolean = true;
-w: char = 'x';
+main: func<int> = (args: array<int>) => {
+    i: int = 0;
+    s: string = "hello";
+    b: boolean = true;
+    c: char = 'a';
+}

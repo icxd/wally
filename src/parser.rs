@@ -8,6 +8,7 @@ pub struct Program {
 #[derive(Debug)]
 pub enum Statement {
     VariableDeclaration(VariableDeclaration),
+    FunctionDeclaration(FunctionDeclaration),
 }
 
 #[derive(Debug)]
@@ -15,6 +16,14 @@ pub struct VariableDeclaration {
     pub name: String,
     pub type_: Type,
     pub value: Expression,
+}
+
+#[derive(Debug)]
+pub struct FunctionDeclaration {
+    pub name: String,
+    pub parameters: Vec<(String, Type)>,
+    pub return_type: Type,
+    pub body: Vec<Statement>,
 }
 
 #[derive(Debug)]
@@ -61,33 +70,7 @@ pub enum Type {
 }
 
 pub fn parse(tokens: Vec<Token>) -> Program {
-    let mut statements: Vec<Statement> = Vec::new();
-    let mut index: usize = 0;
-
-    while index < tokens.len() {
-        let token: &Token = &tokens[index];
-
-        match token.token_type {
-            TokenType::IdentifierLiteral => {
-                let name = token.value.clone();
-                expect_tok(&tokens, &mut index, TokenType::IdentifierLiteral);
-                expect_tok(&tokens, &mut index, TokenType::Colon);
-                let type_ = parse_type(&tokens, &mut index);
-                expect_tok(&tokens, &mut index, TokenType::Assignment);
-                let value = parse_expression(&tokens, &mut index);
-                expect_tok(&tokens, &mut index, TokenType::Semicolon);
-
-                statements.push(Statement::VariableDeclaration(VariableDeclaration {
-                    name,
-                    type_,
-                    value,
-                }));
-            }
-            _ => panic!("Unhandled token: {:?}", token),
-        }
-    }
-
-    Program { statements }
+    Program { statements: parse_statements(&tokens) }
 }
 
 // Parse methods
@@ -163,6 +146,79 @@ fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
         }
         _ => panic!("Unhandled token: {:?}", token),
     }
+}
+fn parse_parameters(tokens: &Vec<Token>, index: &mut usize) -> Vec<(String, Type)> {
+    expect_tok(&tokens, index, TokenType::OpenParenthesis);
+    let mut parameters: Vec<(String, Type)> = Vec::new();
+    while tokens[*index].token_type != TokenType::CloseParenthesis {
+        let name = tokens[*index].value.clone();
+        expect_tok(&tokens, index, TokenType::IdentifierLiteral);
+        expect_tok(&tokens, index, TokenType::Colon);
+        let type_ = parse_type(&tokens, index);
+        parameters.push((name, type_));
+        if tokens[*index].token_type == TokenType::Comma {
+            expect_tok(&tokens, index, TokenType::Comma);
+        }
+    }
+    expect_tok(&tokens, index, TokenType::CloseParenthesis);
+    parameters
+}
+fn parse_block(tokens: &Vec<Token>, index: &mut usize) -> Vec<Statement> {
+    expect_tok(&tokens, index, TokenType::OpenBrace);
+    let mut toks: Vec<Token> = Vec::new();
+    while tokens[*index].token_type != TokenType::CloseBrace {
+        toks.push(tokens[*index].clone());
+        *index += 1;
+    }
+    let statements = parse_statements(&toks);
+    expect_tok(&tokens, index, TokenType::CloseBrace);
+    statements
+}
+fn parse_statements(tokens: &Vec<Token>) -> Vec<Statement> {
+    let mut statements: Vec<Statement> = Vec::new();
+    let mut index: usize = 0;
+
+    while index < tokens.len() {
+        let token: &Token = &tokens[index];
+
+        match token.token_type {
+            TokenType::IdentifierLiteral => {
+                let name = token.value.clone();
+                expect_tok(&tokens, &mut index, TokenType::IdentifierLiteral);
+                expect_tok(&tokens, &mut index, TokenType::Colon);
+                if (match_tok(&tokens, &mut index, &TokenType::Func)) {
+                    expect_tok(&tokens, &mut index, TokenType::LessThan);
+                    let return_type: Type = parse_type(&tokens, &mut index);
+                    expect_tok(&tokens, &mut index, TokenType::GreaterThan);
+                    expect_tok(&tokens, &mut index, TokenType::Assignment);
+                    let mut parameters: Vec<(String, Type)> = parse_parameters(&tokens, &mut index);
+                    expect_tok(&tokens, &mut index, TokenType::FatArrow);
+                    let body: Vec<Statement> = parse_block(&tokens, &mut index);
+
+                    statements.push(Statement::FunctionDeclaration(FunctionDeclaration {
+                        name,
+                        return_type,
+                        parameters,
+                        body,
+                    }));
+                } else {
+                    let type_ = parse_type(&tokens, &mut index);
+                    expect_tok(&tokens, &mut index, TokenType::Assignment);
+                    let value = parse_expression(&tokens, &mut index);
+                    expect_tok(&tokens, &mut index, TokenType::Semicolon);
+
+                    statements.push(Statement::VariableDeclaration(VariableDeclaration {
+                        name,
+                        type_,
+                        value,
+                    }));
+                }
+            }
+            _ => panic!("Unhandled token: {:?}", token),
+        }
+    }
+
+    statements
 }
 
 // Util methods
