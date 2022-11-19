@@ -1,5 +1,5 @@
 const [ println, print ] = import("io");
-const [ read, write ] = import("fs");
+const fs = import("fs");
 
 main: func<int> = (args: array<string> = []) => {
 

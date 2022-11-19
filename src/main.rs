@@ -1,8 +1,10 @@
 mod lexer;
 mod parser;
+mod executor;
 
 use crate::lexer::*;
 use crate::parser::*;
+use crate::executor::*;
 use std::fs::File;
 use std::io::prelude::*;
 use std::env::args;
@@ -21,6 +23,7 @@ fn main() {
     }
 
     let program: Program = parse(&tokens);
-    
     println!("{:#?}", program);
+
+    execute(program);
 }

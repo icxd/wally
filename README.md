@@ -21,12 +21,17 @@ main: func<int> = (args?: array<string>) => {
 - [x] Lexer
 - [ ] Parser
   - [x] Variable declarations
+    - [x] Constant Variables
   - [x] Function declarations
   - [x] Function calls
   - [ ] IMPORTANT: Valid maths parsing
   - [x] List types
     - [x] Arrays
     - [x] Maps
+  - [x] Importing
+    - [x] Multiple methods
+    - [x] As a variable
+  - [ ] Importing
 - [ ] Validate AST
 - [ ] Generate Assembly Code
 - [ ] Validate Assembly

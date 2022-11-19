@@ -173,17 +173,30 @@ fn parse_statements(tokens: &Vec<Token>) -> Vec<Statement> {
                 }
                 let name = token.value.clone();
                 expect_tok(&tokens, &mut index, TokenType::IdentifierLiteral);
-                expect_tok(&tokens, &mut index, TokenType::Colon);
-                let type_ = parse_type(&tokens, &mut index);
-                expect_tok(&tokens, &mut index, TokenType::Assignment);
-                let value = parse_expression(&tokens, &mut index);
-                expect_tok(&tokens, &mut index, TokenType::Semicolon);
-                statements.push(Statement::VariableDeclaration(VariableDeclaration {
-                    name,
-                    type_,
-                    value,
-                    immutable: true,
-                }));
+                if &tokens[index].token_type.clone() == &TokenType::Colon {
+                    expect_tok(&tokens, &mut index, TokenType::Colon);
+                    let type_ = parse_type(&tokens, &mut index);
+                    expect_tok(&tokens, &mut index, TokenType::Assignment);
+                    let value = parse_expression(&tokens, &mut index);
+                    expect_tok(&tokens, &mut index, TokenType::Semicolon);
+                    statements.push(Statement::VariableDeclaration(VariableDeclaration {
+                        name,
+                        type_,
+                        value,
+                        immutable: true,
+                    }));
+                } else {
+                    let method_name = token.value.clone();
+                    expect_tok(&tokens, &mut index, TokenType::Assignment);
+                    expect_tok(&tokens, &mut index, TokenType::Import);
+                    expect_tok(&tokens, &mut index, TokenType::OpenParenthesis);
+                    let path: String = tokens[index].value.clone().as_str().to_string();
+                    expect_tok(&tokens, &mut index, TokenType::StringLiteral);
+                    expect_tok(&tokens, &mut index, TokenType::CloseParenthesis);
+                    expect_tok(&tokens, &mut index, TokenType::Semicolon);
+
+                    statements.push(Statement::Import(Import { path, methods: Expression::Identifier(Identifier { name: method_name }) }));
+                }
             }
             TokenType::EndOfFile => break,
             _ => panic!("Unhandled token: {:?}", token),
