@@ -2,7 +2,7 @@
 wally is a statically-typed programming language inspired by Java, C, C++ and more. 
 
 # Syntax Highlighting
-To get any sort of syntax highlighting for wally inside Visual Studio Code, you have to clone the repository and place the `wally` folder (inside the `syntax` folder) into your `C:/Users/whatever/.vscode/extensions/
+To get any sort of syntax highlighting for wally inside Visual Studio Code, you have to clone the repository and place the `wally` folder (inside the `syntax` folder) into your `C:/Users/whatever/.vscode/extensions/`
 
 # Execute code
 To execute your code, you have to have rust and cargo installed on your computer. After that, you can run `cargo run filename.wly`, replacing the filename with the name of your program.
