@@ -1,6 +1,5 @@
-main: func<int> = (args: array<int>) => {
-    i: int = 0;
-    s: string = "hello";
-    b: boolean = true;
-    c: char = 'a';
+main: func<int> = (args: array<string>) => {
+
 }
+
+main(["hello", "world"]);

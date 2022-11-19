@@ -12,9 +12,9 @@ After that, you can run `cargo run filename.wly`, replacing the filename with th
 - [x] Lexer
 - [ ] Parser
   - [x] Variable declarations
-  - [ ] Function declarations
-  - [ ] Function calls
-  - [ ] Valid maths parsing
+  - [x] Function declarations
+  - [x] Function calls
+  - [ ] IMPORTANT: Valid maths parsing
 - [ ] Validate AST
 - [ ] Generate Assembly Code
 - [ ] Validate Assembly
