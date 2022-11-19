@@ -81,6 +81,7 @@ pub enum TokenType {
     Lambda,
     Array,
     Map,
+    Pointer,
     Return,
 
     // Special
@@ -301,42 +302,6 @@ pub fn lex(source: String) -> Vec<Token> {
                         column,
                     });
                     i += 2;
-                } else if source.chars().nth(i + 1).unwrap() == '>' {
-                    if source.chars().nth(i + 2).unwrap() == '=' {
-                        tokens.push(Token {
-                            token_type: TokenType::BitwiseRightShiftByValue,
-                            value: ">>=".to_string(),
-                            line,
-                            column,
-                        });
-                        i += 3;
-                    } else if source.chars().nth(i + 2).unwrap() == '>' {
-                        if source.chars().nth(i + 3).unwrap() == '=' {
-                            tokens.push(Token {
-                                token_type: TokenType::BitwiseUnsignedRightShiftByValue,
-                                value: ">>>=".to_string(),
-                                line,
-                                column,
-                            });
-                            i += 4;
-                        } else {
-                            tokens.push(Token {
-                                token_type: TokenType::BitwiseUnsignedRightShift,
-                                value: ">>>".to_string(),
-                                line,
-                                column,
-                            });
-                            i += 3;
-                        }
-                    } else {
-                        tokens.push(Token {
-                            token_type: TokenType::BitwiseRightShift,
-                            value: ">>".to_string(),
-                            line,
-                            column,
-                        });
-                        i += 2;
-                    }
                 } else {
                     tokens.push(Token {
                         token_type: TokenType::GreaterThan,
@@ -604,6 +569,7 @@ pub fn lex(source: String) -> Vec<Token> {
                     "lambda" => TokenType::Lambda,
                     "array" => TokenType::Array,
                     "map" => TokenType::Map,
+                    "ptr" => TokenType::Pointer,
                     "return" => TokenType::Return,
                     "true" | "false" => TokenType::BooleanLiteral,
                     _ => TokenType::IdentifierLiteral,

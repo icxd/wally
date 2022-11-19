@@ -87,6 +87,7 @@ pub enum Type {
     String,
     Character,
     Boolean,
+    Pointer(Box<Type>),
 }
 
 pub fn parse(tokens: &Vec<Token>) -> Program {
@@ -170,6 +171,13 @@ fn parse_type(tokens: &Vec<Token>, index: &mut usize) -> Type {
             expect_tok(&tokens, index, TokenType::GreaterThan);
             Type::Map(Box::new(key_type), Box::new(value_type))
         }
+        TokenType::Pointer => {
+            expect_tok(&tokens, index, TokenType::Pointer);
+            expect_tok(&tokens, index, TokenType::LessThan);
+            let type_ = parse_type(&tokens, index);
+            expect_tok(&tokens, index, TokenType::GreaterThan);
+            Type::Pointer(Box::new(type_))
+        }
         TokenType::Int32 => {
             expect_tok(&tokens, index, TokenType::Int32);
             Type::Int
@@ -202,7 +210,9 @@ fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
                     expect_tok(&tokens, index, TokenType::Comma);
                 }
             }
+
             expect_tok(&tokens, index, TokenType::CloseBracket);
+
             Expression::ArrayLiteral(ArrayLiteral { elements })
         }
         TokenType::OpenBrace => {
@@ -275,77 +285,19 @@ fn parse_parameters(tokens: &Vec<Token>, index: &mut usize) -> Vec<(String, Type
 }
 fn parse_block(tokens: &Vec<Token>, index: &mut usize) -> Vec<Statement> {
     let mut toks: Vec<Token> = Vec::new();
-    // TODO: fix this fuckign issue with the curly braces fucking up because of the fucking maps also using the fucking curely braces
-    // AND THAT FOR SOME REASON DOESNT MAKE IT WORK AND THE FIX I TRIED TO IMPLEMENT DOESNT FUCKING WORK EITHER OMFG IM GONNA KILL MYSELF
-    // WHY DID I DECIDE TO MAKE ANOTHER FUCKING PROGRAMMING LANGUAGE WHEN I KNOW THAT IT IS SUCH A FUCKING PAIN IN THE ASS OMFG OFMG OMFG OMFG 
-    // SGJEGSIOJEGSEGSESOJÖESOJÖJSÖJÖGJÖSÖSJIGOAJÖIOGJIPAJ4G8AJ4GJAGÄGÄÄAGÖGGÖÄGÖÄÖÄFGDÖÄFGSDÖÄFGSDFGSDÖÄÖÄFGSDÖÄÖÄFGC
-    while tokens[*index].token_type != TokenType::CloseBrace &&
-            tokens[*index + 1].token_type != TokenType::Semicolon {
-        // println!("{:?} {:?}", tokens[*index].token_type, tokens[*index + 1].token_type);
+    let mut depth: usize = 0;
+    while tokens[*index].token_type != TokenType::CloseBrace || depth != 0 {
+        if tokens[*index].token_type == TokenType::OpenBrace {
+            depth += 1;
+        } else if tokens[*index].token_type == TokenType::CloseBrace {
+            depth -= 1;
+        }
         toks.push(tokens[*index].clone());
         *index += 1;
     }
     let statements = parse_statements(&toks);
     statements
 }
-// fn parse_operator(tokens: &Vec<Token>, index: &mut usize) -> TokenType {
-//     let token = &tokens[*index];
-//     match token.token_type {
-//         TokenType::Plus => {
-//             expect_tok(&tokens, index, TokenType::Plus);
-//             TokenType::Plus
-//         }
-//         TokenType::Minus => {
-//             expect_tok(&tokens, index, TokenType::Minus);
-//             TokenType::Minus
-//         }
-//         TokenType::Multiply => {
-//             expect_tok(&tokens, index, TokenType::Multiply);
-//             TokenType::Multiply
-//         }
-//         TokenType::Divide => {
-//             expect_tok(&tokens, index, TokenType::Divide);
-//             TokenType::Divide
-//         }
-//         TokenType::Modulo => {
-//             expect_tok(&tokens, index, TokenType::Modulo);
-//             TokenType::Modulo
-//         }
-//         TokenType::Equal => {
-//             expect_tok(&tokens, index, TokenType::Equal);
-//             TokenType::Equal
-//         }
-//         TokenType::NotEqual => {
-//             expect_tok(&tokens, index, TokenType::NotEqual);
-//             TokenType::NotEqual
-//         }
-//         TokenType::LessThan => {
-//             expect_tok(&tokens, index, TokenType::LessThan);
-//             TokenType::LessThan
-//         }
-//         TokenType::LessThanOrEqual => {
-//             expect_tok(&tokens, index, TokenType::LessThanOrEqual);
-//             TokenType::LessThanOrEqual
-//         }
-//         TokenType::GreaterThan => {
-//             expect_tok(&tokens, index, TokenType::GreaterThan);
-//             TokenType::GreaterThan
-//         }
-//         TokenType::GreaterThanOrEqual => {
-//             expect_tok(&tokens, index, TokenType::GreaterThanOrEqual);
-//             TokenType::GreaterThanOrEqual
-//         }
-//         TokenType::LogicalAnd => {
-//             expect_tok(&tokens, index, TokenType::LogicalAnd);
-//             TokenType::LogicalAnd
-//         }
-//         TokenType::LogicalOr => {
-//             expect_tok(&tokens, index, TokenType::LogicalOr);
-//             TokenType::LogicalOr
-//         }
-//         _ => panic!("Unhandled token: {:?}", token),
-//     }
-// }
 fn parse_arguments(tokens: &Vec<Token>, index: &mut usize) -> Vec<Expression> {
     let mut arguments: Vec<Expression> = Vec::new();
     while tokens[*index].token_type != TokenType::CloseParenthesis {
