@@ -196,7 +196,17 @@ pub fn lex(source: String) -> Vec<Token> {
                 }
             }
             '/' => {
-                if source.chars().nth(i + 1).unwrap() == '=' {
+                if source.chars().nth(i + 1).unwrap() == '/' {
+                    while source.chars().nth(i).unwrap() != '\n' {
+                        i += 1;
+                    }
+                } else if source.chars().nth(i + 1).unwrap() == '*' {
+                    i += 2;
+                    while source.chars().nth(i).unwrap() != '*' && source.chars().nth(i + 1).unwrap() != '/' {
+                        i += 1;
+                    }
+                    i += 2;
+                } else if source.chars().nth(i + 1).unwrap() == '=' {
                     tokens.push(Token {
                         token_type: TokenType::DivideByValue,
                         value: "/=".to_string(),
