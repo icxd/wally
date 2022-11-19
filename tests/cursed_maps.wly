@@ -1,0 +1,1 @@
+main: lambda<int> = (args?: array<string>) => { "hello": 1, "world": 2, }.keys().forEach(const key: string => import("io")->println(key + ": " + { "hello": 1, "world": 2 }.get(key)));

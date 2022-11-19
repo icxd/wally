@@ -1,0 +1,122 @@
+// IO is like the 'std' library in C or C++.
+const io = import("io");
+
+/*
+You can also import multiple classes, namespaces, functions or variables by writing it like its written below.
+Doing this will not require you to write 'file->' or 'file::' before the function call.
+*/
+const { print, println } = import("io");
+
+// You can import a file you've created by writing the path to the file, example below.
+const myFile = import("./myFile.spy");
+
+// This is a namespace. You can define anything you want inside it. You access a function from a namespace by writing 'namespaceName::functionName(parameters)'
+Lexer: namespace => {
+    /* 
+    An enum is a list of string values that can be written in 2 different ways.
+
+    1. This way is used if you want to use the enum as a string.
+    Example: */
+    TokenType: enum => STRING, EOF; 
+    /*
+    2. This way is used if you want the enum to have parameters, inspired by Java.
+    Example: 
+    TokenType: enum = (regex: string) => {
+        STRING(""),
+        EOF(""),
+    }
+
+    This is how a class is defined.
+    The parameters are for the constructor. You can have as many parameters as you want.
+    In the class body, you can do whatever you could do outside of the class, except you can't define another class.
+    All variables defined inside of a class are private and cannot be used or edited outside the class without creating getter and setter methods, see examples below.
+    
+    You can assign a value of a parameter if you want the parameter to have a default value.
+    If the parameter has a default value, you don't have to pass it as a parameter when creating a new object.
+    You can also specify the parameter as optional by writing '?', but this will cause the default value to be 'null' which can cause errors.
+    If you decide to have a parameter as optional or with a default value, you have to put it last in the parameter list, otherwise you wont be able
+    to access the other parameters without assigning the optional parameter.
+    'this' is a reference to the current object so if you want to access a parameter that has the same name as a global variable, you can do 'this->variableName'.
+    You can also use 'this' to call a function in the class.
+    */
+    Token: class = (type: TokenType, value: string = "", line: int = 1, column: int = 1) => {
+        // You can either write them like this, or you can write them as normal functions, I just prefer this way.
+        getType: lambda<TokenType> = () => this->type; // This is used to get the value of type.
+        getValue: lambda<string> = () => this->value; // This is used to get the value of value.
+        getLine: lambda<int> = () => this->line; // This is used to get the value of line.
+        getColumn: lambda<int> = () => this->column; // This is used to get the value of column.
+
+        setType: lambda<void> = (newType: TokenType) => this->type = newType; // This is used to set the value of type.
+        setValue: lambda<void> = (newValue: string) => this->value = newValue; // This is used to set the value of value.
+        setLine: lambda<void> = (newLine: int) => this->line = newLine; // This is used to set the value of line.
+        setColumn: lambda<void> = (newColumn: int) => this->column = newColumn; // This is used to set the value of column.
+
+        // The override keyward is used to override a function from a parent class.
+        // Every class you create has a parent class called 'Object', which is the base class for all classes, see documentation above.
+        override toString: lambda<string> = () => "Token(" + this->type + ", '" + this->value + "', " + this->line + ", " + this->column + ")";
+    }
+
+    lex: func<array<Token>> = (source: string) => {
+        tokens: array<Token> = {};
+        i: int = 0;
+
+        while (i < source.length()) {
+            // You can use the const keyword to define a constant variable, meaning that it can never change.
+            // string#charAt(index) is used to get a character from a string at the given index.
+            const c: char = source.charAt(i);
+
+            if (c == ' ') {
+                i++;
+                continue;
+            } else if (c == '\"') {
+                i++;
+                value: string = "";
+                while (source.charAt(i) != '\"') {
+                    value += source.charAt(i);
+                    i++;
+                }
+                ++;
+                // An example for the optional parameters can be seen here where we don't have to pass the line and column parameters.
+                tokens.append(new Token(TokenType.STRING, value));
+            } else {
+                /*
+                Throwing an exception will automatically print the error message and stop the rest of the method from executing by returning 'null'.
+                
+                If you were to write it out in Spy code, it would look like this:
+                io->println("RuntimeException: Unexpected character '" + c + "'");
+                return null;
+                */
+                throw new RuntimeException("Unexpected character \'" + c + "\'");
+            }
+        }
+
+        return tokens;
+    }
+}
+
+/*
+Main function looks like this, this is where all your code will run from.
+
+Optional parameters are denoted by a question mark after the name.
+You specify the return type of a parameter by putting a colon after the name.
+You specify the return type of a function by writing 'func<type>', examples below.
+
+You can access a class from a namespace by writing 'Namespace::ClassName'.
+You can access a function from a namespace by writing 'Namespace::functionName'.
+You can access a function from another class by writing 'ClassName->functionName'.
+You can access a function from another file by writing 'import("filename")->functionName'.
+*/
+main: func<int> = (args?: array<string>) => {
+    const tokens: array<Lexer::Token> = Lexer::lex("\"abc\"");
+
+    // This is how you iterate through an array using forEach.
+    tokens.forEach(token: Lexer::Token => io->println(token->getValue()));
+
+    /*
+    A return statement is required in every function that doesn't have the return type 'void'.
+    For void functions, you can still use a return statement, but without passing it a value.
+    In the main function, the return value is the exit code of the program.
+    An exit code of 0 means that the program exited successfully while any other exit code means that the program exited with an error.
+    */
+    return 0;
+}
