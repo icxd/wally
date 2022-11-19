@@ -1,1 +1,17 @@
-x: map<int, string> = { 1: "hello", 2: "world" };
+// test comment
+/*
+another test comment
+*/
+
+// test function
+test: func<int> = (a: string, b: map<int, string>) => {
+    // Somehow broken?!??!?
+    m: map<int, string> = { 1: "hello", 2: "world" };
+    a: array<string> = [ "hello", "world" ];
+    i: int = 1;
+    s: string = "hello";
+    b: boolean = true;
+    c: char = 'a';
+}
+
+test("test", { 1: "hello", 2: "world" });

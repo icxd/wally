@@ -89,7 +89,7 @@ pub enum Type {
     Boolean,
 }
 
-pub fn parse(tokens: Vec<Token>) -> Program {
+pub fn parse(tokens: &Vec<Token>) -> Program {
     Program { statements: parse_statements(&tokens) }
 }
 
@@ -120,7 +120,9 @@ fn parse_statements(tokens: &Vec<Token>) -> Vec<Statement> {
                     expect_tok(&tokens, &mut index, TokenType::Assignment);
                     let parameters: Vec<(String, Type)> = parse_parameters(&tokens, &mut index);
                     expect_tok(&tokens, &mut index, TokenType::FatArrow);
+                    expect_tok(&tokens, &mut index, TokenType::OpenBrace);
                     let body: Vec<Statement> = parse_block(&tokens, &mut index);
+                    expect_tok(&tokens, &mut index, TokenType::CloseBrace);
 
                     statements.push(Statement::FunctionDeclaration(FunctionDeclaration {
                         name,
@@ -141,6 +143,7 @@ fn parse_statements(tokens: &Vec<Token>) -> Vec<Statement> {
                     }));
                 }
             }
+            TokenType::EndOfFile => break,
             _ => panic!("Unhandled token: {:?}", token),
         }
     }
@@ -210,7 +213,11 @@ fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
                 expect_tok(&tokens, index, TokenType::Colon);
                 let value = parse_expression(&tokens, index);
                 elements.push((key, value));
-                if tokens[*index].token_type == TokenType::Comma {
+                if *index + 1 > tokens.len() {
+                    break;
+                }
+                // this shit is broken asf, but only if you define a map inside of a function body???????
+                if tokens[*index].token_type != TokenType::CloseBrace {
                     expect_tok(&tokens, index, TokenType::Comma);
                 }
             }
@@ -267,74 +274,72 @@ fn parse_parameters(tokens: &Vec<Token>, index: &mut usize) -> Vec<(String, Type
     parameters
 }
 fn parse_block(tokens: &Vec<Token>, index: &mut usize) -> Vec<Statement> {
-    expect_tok(&tokens, index, TokenType::OpenBrace);
     let mut toks: Vec<Token> = Vec::new();
     while tokens[*index].token_type != TokenType::CloseBrace {
         toks.push(tokens[*index].clone());
         *index += 1;
     }
     let statements = parse_statements(&toks);
-    expect_tok(&tokens, index, TokenType::CloseBrace);
     statements
 }
-fn parse_operator(tokens: &Vec<Token>, index: &mut usize) -> TokenType {
-    let token = &tokens[*index];
-    match token.token_type {
-        TokenType::Plus => {
-            expect_tok(&tokens, index, TokenType::Plus);
-            TokenType::Plus
-        }
-        TokenType::Minus => {
-            expect_tok(&tokens, index, TokenType::Minus);
-            TokenType::Minus
-        }
-        TokenType::Multiply => {
-            expect_tok(&tokens, index, TokenType::Multiply);
-            TokenType::Multiply
-        }
-        TokenType::Divide => {
-            expect_tok(&tokens, index, TokenType::Divide);
-            TokenType::Divide
-        }
-        TokenType::Modulo => {
-            expect_tok(&tokens, index, TokenType::Modulo);
-            TokenType::Modulo
-        }
-        TokenType::Equal => {
-            expect_tok(&tokens, index, TokenType::Equal);
-            TokenType::Equal
-        }
-        TokenType::NotEqual => {
-            expect_tok(&tokens, index, TokenType::NotEqual);
-            TokenType::NotEqual
-        }
-        TokenType::LessThan => {
-            expect_tok(&tokens, index, TokenType::LessThan);
-            TokenType::LessThan
-        }
-        TokenType::LessThanOrEqual => {
-            expect_tok(&tokens, index, TokenType::LessThanOrEqual);
-            TokenType::LessThanOrEqual
-        }
-        TokenType::GreaterThan => {
-            expect_tok(&tokens, index, TokenType::GreaterThan);
-            TokenType::GreaterThan
-        }
-        TokenType::GreaterThanOrEqual => {
-            expect_tok(&tokens, index, TokenType::GreaterThanOrEqual);
-            TokenType::GreaterThanOrEqual
-        }
-        TokenType::LogicalAnd => {
-            expect_tok(&tokens, index, TokenType::LogicalAnd);
-            TokenType::LogicalAnd
-        }
-        TokenType::LogicalOr => {
-            expect_tok(&tokens, index, TokenType::LogicalOr);
-            TokenType::LogicalOr
-        }
-        _ => panic!("Unhandled token: {:?}", token),
-    }
-}
+// fn parse_operator(tokens: &Vec<Token>, index: &mut usize) -> TokenType {
+//     let token = &tokens[*index];
+//     match token.token_type {
+//         TokenType::Plus => {
+//             expect_tok(&tokens, index, TokenType::Plus);
+//             TokenType::Plus
+//         }
+//         TokenType::Minus => {
+//             expect_tok(&tokens, index, TokenType::Minus);
+//             TokenType::Minus
+//         }
+//         TokenType::Multiply => {
+//             expect_tok(&tokens, index, TokenType::Multiply);
+//             TokenType::Multiply
+//         }
+//         TokenType::Divide => {
+//             expect_tok(&tokens, index, TokenType::Divide);
+//             TokenType::Divide
+//         }
+//         TokenType::Modulo => {
+//             expect_tok(&tokens, index, TokenType::Modulo);
+//             TokenType::Modulo
+//         }
+//         TokenType::Equal => {
+//             expect_tok(&tokens, index, TokenType::Equal);
+//             TokenType::Equal
+//         }
+//         TokenType::NotEqual => {
+//             expect_tok(&tokens, index, TokenType::NotEqual);
+//             TokenType::NotEqual
+//         }
+//         TokenType::LessThan => {
+//             expect_tok(&tokens, index, TokenType::LessThan);
+//             TokenType::LessThan
+//         }
+//         TokenType::LessThanOrEqual => {
+//             expect_tok(&tokens, index, TokenType::LessThanOrEqual);
+//             TokenType::LessThanOrEqual
+//         }
+//         TokenType::GreaterThan => {
+//             expect_tok(&tokens, index, TokenType::GreaterThan);
+//             TokenType::GreaterThan
+//         }
+//         TokenType::GreaterThanOrEqual => {
+//             expect_tok(&tokens, index, TokenType::GreaterThanOrEqual);
+//             TokenType::GreaterThanOrEqual
+//         }
+//         TokenType::LogicalAnd => {
+//             expect_tok(&tokens, index, TokenType::LogicalAnd);
+//             TokenType::LogicalAnd
+//         }
+//         TokenType::LogicalOr => {
+//             expect_tok(&tokens, index, TokenType::LogicalOr);
+//             TokenType::LogicalOr
+//         }
+//         _ => panic!("Unhandled token: {:?}", token),
+//     }
+// }
 fn parse_arguments(tokens: &Vec<Token>, index: &mut usize) -> Vec<Expression> {
     let mut arguments: Vec<Expression> = Vec::new();
     while tokens[*index].token_type != TokenType::CloseParenthesis {
@@ -349,6 +354,9 @@ fn parse_arguments(tokens: &Vec<Token>, index: &mut usize) -> Vec<Expression> {
 
 // Util methods
 fn match_tok(tokens: &Vec<Token>, index: &mut usize, token_type: &TokenType) -> bool {
+    if *index >= tokens.len() {
+        return false;
+    }
     if &tokens[*index].token_type == token_type {
         *index += 1;
         return true;
@@ -357,6 +365,9 @@ fn match_tok(tokens: &Vec<Token>, index: &mut usize, token_type: &TokenType) -> 
     false
 }
 fn expect_tok(tokens: &Vec<Token>, index: &mut usize, token_type: TokenType) {
+    if *index >= tokens.len() {
+        return;
+    }
     if !match_tok(tokens, index, &token_type) {
         panic!("Expected token: {:?}, got {:?}", token_type.clone(), tokens[*index].token_type);
     }

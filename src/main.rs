@@ -16,7 +16,11 @@ fn main() {
         .expect("Something went wrong reading the file");
 
     let tokens: Vec<Token> = lex(contents);
-    let program: Program = parse(tokens);
+    let program: Program = parse(&tokens);
+
+    for token in tokens {
+        println!("{:?}", token);
+    }
     
     println!("{:#?}", program);
 }

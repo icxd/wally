@@ -82,6 +82,9 @@ pub enum TokenType {
     Array,
     Map,
     Return,
+
+    // Special
+    EndOfFile,
 }
 #[derive(Debug, Clone, PartialEq)]
 pub struct Token {
@@ -673,6 +676,13 @@ pub fn lex(source: String) -> Vec<Token> {
             _ => panic!("Unexpected character: {}", source.chars().nth(i).unwrap()),
         }
     }
+
+    tokens.push(Token {
+        token_type: TokenType::EndOfFile,
+        value: "".to_string(),
+        line,
+        column,
+    });
 
     tokens
 }
