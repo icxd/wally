@@ -2,10 +2,12 @@
 wally is a statically-typed programming language inspired by Java, C, C++ and more. 
 
 ## TODO
-- [ ] Fix lexer errors
-  - [ ] Comments
+- [x] Lexer
 - [ ] Parser
-  - [ ] Building an AST from tokens
+  - [x] Variable declarations
+  - [ ] Function declarations
+  - [ ] Function calls
+  - [ ] Valid maths parsing
 - [ ] Validate AST
 - [ ] Generate Assembly Code
 - [ ] Validate Assembly
