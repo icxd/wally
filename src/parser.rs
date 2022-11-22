@@ -1,19 +1,20 @@
 use crate::lexer::{Token, TokenType};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Program {
     pub statements: Vec<Statement>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
     VariableDeclaration(VariableDeclaration),
     FunctionDeclaration(FunctionDeclaration),
     FunctionCall(FunctionCall),
     Import(Import),
+    Return(Return),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct VariableDeclaration {
     pub name: String,
     pub type_: Type,
@@ -21,7 +22,7 @@ pub struct VariableDeclaration {
     pub immutable: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionDeclaration {
     pub name: String,
     pub parameters: Vec<(String, Type, bool, Expression)>,
@@ -29,19 +30,24 @@ pub struct FunctionDeclaration {
     pub body: Vec<Statement>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FunctionCall {
     pub name: String,
     pub arguments: Vec<Expression>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Import {
     pub path: String,
     pub methods: Expression,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
+pub struct Return {
+    pub value: Expression,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     ArrayLiteral(ArrayLiteral),
     MapLiteral(MapLiteral),
@@ -54,42 +60,42 @@ pub enum Expression {
     None,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ArrayLiteral {
     pub elements: Vec<Expression>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct MapLiteral {
     pub elements: Vec<(Expression, Expression)>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct NumberLiteral {
     pub value: f64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StringLiteral {
     pub value: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CharacterLiteral {
     pub value: char,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct BooleanLiteral {
     pub value: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Identifier {
     pub name: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Type {
     Array(Box<Type>),
     Map(Box<Type>, Box<Type>),
@@ -197,6 +203,12 @@ fn parse_statements(tokens: &Vec<Token>) -> Vec<Statement> {
 
                     statements.push(Statement::Import(Import { path, methods: Expression::Identifier(Identifier { name: method_name }) }));
                 }
+            }
+            TokenType::Return => {
+                expect_tok(&tokens, &mut index, TokenType::Return);
+                let value = parse_expression(&tokens, &mut index);
+                expect_tok(&tokens, &mut index, TokenType::Semicolon);
+                statements.push(Statement::Return(Return { value }));
             }
             TokenType::EndOfFile => break,
             _ => panic!("Unhandled token: {:?}", token),

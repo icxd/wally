@@ -1,7 +1,5 @@
-const [ println, print ] = import("io");
-const fs = import("fs");
-
 main: func<int> = (args: array<string> = []) => {
+    return 0;
 
 }
 
