@@ -1,6 +1,5 @@
-main: func<int> = (args: array<string> = []) => {
-    return 0;
+main: func<int> = (args: array<string>) => {
 
 }
 
-main();
+main(["test"]);

@@ -1,25 +1,45 @@
-use crate::parser::{Program, Statement, Expression, Type};
+use crate::lexer::{lex};
+use crate::parser::{Program, Statement, Expression, Type, parse};
+use std::fs::File;
+use std::io::prelude::*;
+use std::thread::current;
 
 #[derive(Debug, PartialEq)]
-struct Function {
-    name: String,
-    parameters: Vec<Parameter>,
-    body: Vec<Statement>,
+pub struct Executor {
+    pub functions: Vec<Function>,
+    pub variables: Vec<Variable>,
 }
 
 #[derive(Debug, PartialEq)]
-struct Parameter {
-    name: String,
-    _type: Type,
-    optional: bool,
-    default_value: Option<Expression>,
+pub struct Function {
+    pub name: String,
+    pub parameters: Vec<Parameter>,
+    pub body: Vec<Statement>,
+    pub return_type: Type,
 }
 
-pub fn execute(program: Program) {
+#[derive(Debug, PartialEq)]
+pub struct Parameter {
+    pub name: String,
+    pub _type: Type,
+    pub optional: bool,
+    pub default_value: Option<Expression>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Variable {
+    pub name: String,
+    pub _type: Type,
+    pub value: Option<Expression>,
+    pub immutable: bool,
+}
+
+pub fn execute(program: Program) -> Executor {
     let mut i = 0;
 
-    let mut functions = Vec::new();
-    
+    let mut functions: Vec<Function> = Vec::new();
+    let mut global_variables: Vec<Variable> = Vec::new();
+
     while i < program.statements.len() {
         let statement = &program.statements[i];
 
@@ -37,11 +57,13 @@ pub fn execute(program: Program) {
                 }
 
                 let body: Vec<Statement> = function.body.clone();
+                let return_type: Type = function.return_type.clone();
 
                 let function = Function {
                     name,
                     parameters,
                     body,
+                    return_type,
                 };
 
                 functions.push(function);
@@ -51,6 +73,7 @@ pub fn execute(program: Program) {
             Statement::FunctionCall(function) => {
                 let name: String = function.name.clone();
                 let mut parameters: Vec<Expression> = Vec::new();
+                let mut local_variables: Vec<Variable> = Vec::new();
                 for parameter in &function.arguments {
                     parameters.push(parameter.clone());
                 }
@@ -91,24 +114,88 @@ pub fn execute(program: Program) {
                 while k < function.body.len() {
                     let statement = &function.body[k];
 
-                    let prog = Program {
-                        statements: vec![statement.clone()],
-                    };
+                    match statement {
+                        Statement::Return(expression) => {
+                            break;
+                        }
+                        Statement::VariableDeclaration(variable) => {
+                            let name: String = variable.name.clone();
+                            let _type: Type = variable.type_.clone();
+                            let value: Option<Expression> = Some(variable.value.clone());
+                            let immutable: bool = variable.immutable;
 
-                    execute(prog);
+                            let variable = Variable {
+                                name,
+                                _type,
+                                value,
+                                immutable,
+                            };
+
+                            local_variables.push(variable);
+
+                            k += 1;
+                        }
+                        _ => panic!("Unhandled statement '{:?}'", statement),
+                    }
 
                     k += 1;
                 }
 
                 i += 1;
             }
-            Statement::Return(expression) => {
-                println!("{:?}", expression);
+            Statement::VariableDeclaration(variable) => {
+                let name: String = variable.name.clone();
+                let _type: Type = variable.type_.clone();
+                let value: Option<Expression> = Some(variable.value.clone());
+                let immutable: bool = variable.immutable;
+
+                let variable = Variable {
+                    name,
+                    _type,
+                    value,
+                    immutable,
+                };
+
+                global_variables.push(variable);
+
                 i += 1;
             }
-            _ => {
+            Statement::Import(import) => {
+                let methods = import.methods.clone();
+                let path = import.path.clone();
+
+                if path.ends_with(".wly") {
+                    let current_dir = std::env::current_dir().unwrap();
+                    let mut file = File::open(current_dir.join(path)).expect("File not found");
+                    let mut contents = String::new();
+                    file.read_to_string(&mut contents)
+                        .expect("Something went wrong reading the file");
+                    let tokens = lex(contents);
+                    let program = parse(&tokens);
+                    let executor = execute(program);
+
+                    for function in executor.functions {
+                        functions.push(function);
+                    }
+
+                    for variable in executor.variables {
+                        global_variables.push(variable);
+                    }
+                } else {
+                    panic!("Unsupported file type");
+                }
+
                 i += 1;
             }
+            _ => panic!("Unhandled statement '{:?}'", statement),
         }
     }
+
+    println!("{:#?}", functions);
+    println!("{:#?}", global_variables);
+
+    return Executor {
+        functions,
+        variables: global_variables,
+    };
 }

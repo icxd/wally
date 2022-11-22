@@ -122,7 +122,8 @@ fn parse_statements(tokens: &Vec<Token>) -> Vec<Statement> {
             TokenType::IdentifierLiteral => {
                 let name = token.value.clone();
                 expect_tok(&tokens, &mut index, TokenType::IdentifierLiteral);
-                if match_tok(&tokens, &mut index, &TokenType::OpenParenthesis) {
+                if tokens[index].token_type == TokenType::OpenParenthesis {
+                    expect_tok(&tokens, &mut index, TokenType::OpenParenthesis);
                     let arguments = parse_arguments(&tokens, &mut index);
                     expect_tok(&tokens, &mut index, TokenType::CloseParenthesis);
                     expect_tok(&tokens, &mut index, TokenType::Semicolon);
@@ -330,7 +331,7 @@ fn parse_expression(tokens: &Vec<Token>, index: &mut usize) -> Expression {
                 name: token.value.clone(),
             })
         }
-        _ => panic!("Unhandled token: {:?}", token),
+        _ => Expression::None,
     }
 }
 fn parse_parameters(tokens: &Vec<Token>, index: &mut usize) -> Vec<(String, Type, bool, Expression)> {

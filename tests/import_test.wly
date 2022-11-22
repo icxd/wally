@@ -1,0 +1,7 @@
+test: int = () => {
+
+}
+
+test2: string = () => {
+    
+}

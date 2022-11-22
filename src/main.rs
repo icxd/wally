@@ -16,14 +16,10 @@ fn main() {
     let mut contents: String = String::new();
     file.read_to_string(&mut contents)
         .expect("Something went wrong reading the file");
-
     let tokens: Vec<Token> = lex(contents);
     for token in &tokens {
         println!("{:?}", token);
     }
-
     let program: Program = parse(&tokens);
-    println!("{:#?}", program);
-
     execute(program);
 }
