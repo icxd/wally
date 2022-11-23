@@ -21,5 +21,6 @@ fn main() {
         println!("{:?}", token);
     }
     let program: Program = parse(&tokens);
+    println!("{:#?}", program);
     execute(program);
 }

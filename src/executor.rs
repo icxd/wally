@@ -2,7 +2,6 @@ use crate::lexer::{lex};
 use crate::parser::{Program, Statement, Expression, Type, parse};
 use std::fs::File;
 use std::io::prelude::*;
-use std::thread::current;
 
 #[derive(Debug, PartialEq)]
 pub struct Executor {
@@ -88,12 +87,26 @@ pub fn execute(program: Program) -> Executor {
                 for (i, parameter) in function.parameters.iter().enumerate() {
                     let value = if i < parameters.len() {
                         parameters[i].clone()
+                    } else if parameter.default_value.is_some() {
+                        parameter.default_value.clone().unwrap()
                     } else if parameter.optional {
                         parameter.default_value.clone().unwrap()
                     } else {
                         panic!("Missing parameter '{}'", parameter.name);
                     };
 
+                    if parameter._type != match value {
+                        Expression::NumberLiteral(_) => Type::Int,
+                        Expression::StringLiteral(_) => Type::String,
+                        Expression::BooleanLiteral(_) => Type::Boolean,
+                        Expression::ArrayLiteral(_) => panic!("Arrays not implemented"),
+                        Expression::CharacterLiteral(_) => Type::Character,
+                        Expression::MapLiteral(_) => panic!("Maps not implemented"),
+                        _ => panic!("Invalid parameter type"),
+                    } {
+                        panic!("Parameter '{}' is not of type {:?}", parameter.name, parameter._type);
+                    }
+                        
                     param_list.push((parameter.name.clone(), value));
                 }
 
